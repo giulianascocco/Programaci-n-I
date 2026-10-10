@@ -1,0 +1,116 @@
+NOMBRE_ARCHIVO = "inventario_buffet.txt"
+
+def cargar_inventario_inicial():
+    return [
+        {"codigo": 101, "nombre": "Cafe con leche", "precio": 1500.0, "stock": 10, "minimo": 3},
+        {"codigo": 102, "nombre": "Medialuna", "precio": 700.0, "stock": 15, "minimo": 5},
+        {"codigo": 103, "nombre": "Sandwich de miga", "precio": 1800.0, "stock": 4, "minimo": 5},
+        {"codigo": 104, "nombre": "Agua mineral 500ml", "precio": 1000.0, "stock": 20, "minimo": 6},
+        {"codigo": 105, "nombre": "Empanada", "precio": 1200.0, "stock": 2, "minimo": 4},
+        {"codigo": 106, "nombre": "Chipa (100g)", "precio": 1300.0, "stock": 8, "minimo": 3}
+    ]
+
+def leer_inventario_desde_archivo(nombre_archivo):
+    inventario = []
+    try:
+        archivo = open(nombre_archivo, "r", encoding="utf-8")
+        for linea in archivo:
+            linea_limpia = linea.strip()
+            if linea_limpia:
+                datos = linea_limpia.split(",")
+                prod = {
+                    "codigo": int(datos[0]),
+                    "nombre": datos[1],
+                    "precio": float(datos[2]),
+                    "stock": int(datos[3]),
+                    "minimo": int(datos[4])
+                }
+                inventario.append(prod)
+        archivo.close()
+        print(f"[SISTEMA] Inventario cargado exitosamente desde '{nombre_archivo}'.")
+    except FileNotFoundError:
+        print(f"[ALERTA] No se encontró '{nombre_archivo}'. Se carga el inventario inicial.")
+        inventario = cargar_inventario_inicial()
+    return inventario
+
+def guardar_inventario_en_archivo(nombre_archivo, inventario):
+    archivo = open(nombre_archivo, "w", encoding="utf-8")
+    for prod in inventario:
+        linea = f"{prod['codigo']},{prod['nombre']},{prod['precio']},{prod['stock']},{prod['minimo']}\n"
+        archivo.write(linea)
+    archivo.close()
+    print(f"[SISTEMA] Cambios guardados correctamente en '{nombre_archivo}'.")
+
+def buscar_producto(inventario, codigo):
+    for i in range(len(inventario)):
+        if inventario[i]["codigo"] == codigo:
+            return i
+    return -1
+
+def registrar_venta_y_descontar(inventario):
+    print("\n REGISTRO DE VENTA Y DESCUENTO DE STOCK ")
+    try:
+        cod = int(input("Ingrese código de producto (101-106): "))
+        pos = buscar_producto(inventario, cod)
+        
+        if pos == -1:
+            print("[ERROR] El código de producto no existe.")
+            return
+
+        prod = inventario[pos]
+        print(f"Producto: {prod['nombre']} | Stock actual: {prod['stock']} unidades.")
+        
+        cant = int(input("Ingrese cantidad vendida: "))
+        if cant <= 0:
+            print("[ERROR] La cantidad debe ser mayor a cero.")
+            return
+
+        # Validación de stock
+        if cant > prod["stock"]:
+            print(f"[RECHAZADO] Stock insuficiente. Solo quedan {prod['stock']} unidades.")
+        else:
+            prod["stock"] -= cant
+            print(f"[ÉXITO] Venta concretada. Stock restante de '{prod['nombre']}': {prod['stock']}.")
+            
+            # Comprobación de alerta
+            if prod["stock"] <= prod["minimo"]:
+                print(f"[ALERTA] ¡El stock de '{prod['nombre']}' ha alcanzado el nivel crítico ({prod['stock']} unidades)!")
+
+    except ValueError:
+        print("[ERROR] Debe ingresar valores numéricos válidos.")
+
+def consultar_alertas_stock(inventario):
+    print("\nINFORME DE ALERTAS DE REPOSICIÓN")
+    alertas = 0
+    for prod in inventario:
+        if prod["stock"] <= prod["minimo"]:
+            print(f"Poco stock: {prod['nombre']} (Cód: {prod['codigo']}) -> Stock: {prod['stock']} | Mínimo: {prod['minimo']}")
+            alertas += 1
+        else:
+            print(f"OK: {prod['nombre']} -> Stock: {prod['stock']}")
+            
+    if alertas == 0:
+        print("\nTodos los productos tienen niveles de stock adecuados.")
+
+def menu_principal():
+    inventario = leer_inventario_desde_archivo(NOMBRE_ARCHIVO)
+    opcion = ""
+    while opcion != "3":
+        print("   SISTEMA DE CONTROL DE STOCK - BUFFET   ")
+        print("1. Registrar Venta y Descontar Stock")
+        print("2. Consultar Alertas de Reposición")
+        print("3. Guardar Cambios y Salir")
+        opcion = input("Seleccione una opción: ").strip()
+
+        if opcion == "1":
+            registrar_venta_y_descontar(inventario)
+        elif opcion == "2":
+            consultar_alertas_stock(inventario)
+        elif opcion == "3":
+            guardar_inventario_en_archivo(NOMBRE_ARCHIVO, inventario)
+            print("¡Hasta luego!")
+        else:
+            print("[ERROR] Opción inválida.")
+
+if __name__ == "__main__":
+    menu_principal()

@@ -1,0 +1,20 @@
+def cargar_producto_nuevo(catalogo, codigo, nombre, precio, stock, minimo):
+    for prod in catalogo:
+        if prod["codigo"] == codigo:
+            print(f"[ERROR] El código {codigo} ya existe. No se puede duplicar.")
+            return False
+            
+    nuevo_prod = {
+        "codigo": codigo,
+        "nombre": nombre,
+        "precio": precio,
+        "stock": stock,
+        "minimo": minimo
+    }
+    catalogo.append(nuevo_prod)
+    print(f"[ÉXITO] Producto '{nombre}' cargado correctamente.")
+    return True
+
+catalogo_buffet = []
+cargar_producto_nuevo(catalogo_buffet, 101, "Café con leche", 1500.0, 10, 3)
+cargar_producto_nuevo(catalogo_buffet, 101, "Café Doble", 1800.0, 5, 2)  # Controla duplicado
