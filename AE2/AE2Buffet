@@ -74,7 +74,7 @@ def registrar_venta_y_descontar(inventario):
             
             # Comprobación de alerta
             if prod["stock"] <= prod["minimo"]:
-                print(f"⚠️ [ALERTA] ¡El stock de '{prod['nombre']}' ha alcanzado el nivel crítico ({prod['stock']} unidades)!")
+                print(f"[ALERTA] ¡El stock de '{prod['nombre']}' ha alcanzado el nivel crítico ({prod['stock']} unidades)!")
 
     except ValueError:
         print("[ERROR] Debe ingresar valores numéricos válidos.")
