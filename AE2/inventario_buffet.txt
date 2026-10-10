@@ -1,0 +1,6 @@
+101,Cafe con leche,1500.0,10,3
+102,Medialuna,700.0,15,5
+103,Sandwich de miga,1800.0,4,5
+104,Agua mineral 500ml,1000.0,20,6
+105,Empanada,1200.0,0,4
+106,Chipa (100g),1300.0,6,3
