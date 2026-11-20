@@ -40,15 +40,35 @@ def mostrar_matriz(nodos, matriz):
         print(f"{nodos[i]:>4} ", *[f"{v:>4}" for v in matriz[i]])
 
 
+def grados(nodos, matriz):
+    """Devuelve [modulo, salida, entrada] ordenado por grado de entrada (burbuja)."""
+    lista = []
+    for i in range(len(nodos)):
+        salida = 0
+        entrada = 0
+        for j in range(len(nodos)):
+            salida = salida + matriz[i][j]       # suma de la fila i
+            entrada = entrada + matriz[j][i]     # suma de la columna i
+        lista.append([nodos[i], salida, entrada])
+    for pasada in range(len(lista) - 1):
+        for k in range(len(lista) - 1 - pasada):
+            if lista[k][2] < lista[k + 1][2]:
+                lista[k], lista[k + 1] = lista[k + 1], lista[k]
+    return lista
+
+
 def main():
     modulos, adyacencia = [], []
     opcion = ""
     while opcion != "0":
-        print("\n1. Cargar dependencias (RF1)\n0. Salir")
+        print("\n1. Cargar dependencias (RF1)\n2. Grados (RF2)\n0. Salir")
         opcion = input("Opcion: ")
         if opcion == "1":
             modulos, adyacencia = cargar_grafo("dependencias.txt")
             mostrar_matriz(modulos, adyacencia)
+        elif opcion == "2" and modulos != []:
+            for m in grados(modulos, adyacencia):
+                print(m[0], "- salida:", m[1], "- entrada:", m[2])
     print("Fin del programa.")
 
 
