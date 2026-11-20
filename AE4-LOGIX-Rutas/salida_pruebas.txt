@@ -1,0 +1,11 @@
+OK    P1 Carga de los 9 modulos (Tabla 2) 
+OK    P2 PED depende de CLI, INV y ASG 
+OK    P3 Modulo mas critico: INV, entrada 4 
+OK    P4 Total de dependencias = 14 
+OK    P5 Caso limite: CLI sin dependencias 
+OK    P6 Ruta mas rapida D a Z3 
+OK    P7 Caso limite: origen = destino 
+OK    P8 Con corredor de dron D-Z3 
+OK    P9 Caso limite: zona sin conexion 
+Linea invalida, se ignora: H1;Z1;-6
+OK    P10 Caso limite: minutos negativos 
