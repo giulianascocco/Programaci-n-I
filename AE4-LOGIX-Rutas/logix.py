@@ -3,6 +3,7 @@
 import os
 
 CARPETA = os.path.dirname(os.path.abspath(__file__))
+INFINITO = 999999
 
 
 def buscar(nodos, nombre):
@@ -64,11 +65,46 @@ def grados(nodos, matriz):
     return lista
 
 
+def dijkstra(nodos, matriz, origen, destino):
+    """Devuelve (minutos, camino) de la ruta mas rapida, o (INFINITO, []) si no hay."""
+    n = len(nodos)
+    distancia = [INFINITO] * n
+    anterior = [-1] * n
+    definitivo = [False] * n
+    distancia[buscar(nodos, origen)] = 0
+    for paso in range(n):
+        u = -1                                   # lugar no definitivo mas cercano
+        for i in range(n):
+            if not definitivo[i] and (u == -1 or distancia[i] < distancia[u]):
+                u = i
+        if distancia[u] == INFINITO:
+            break
+        definitivo[u] = True
+        for v in range(n):                       # pasando por u se llega antes?
+            if matriz[u][v] > 0 and distancia[u] + matriz[u][v] < distancia[v]:
+                distancia[v] = distancia[u] + matriz[u][v]
+                anterior[v] = u
+    d = buscar(nodos, destino)
+    camino = []
+    actual = d
+    while distancia[d] != INFINITO and actual != -1:   # se arma desde el destino hacia atras
+        camino.insert(0, nodos[actual])
+        actual = anterior[actual]
+    return distancia[d], camino
+
+
+def pedir(nodos, mensaje):
+    nombre = input(mensaje).upper()
+    while buscar(nodos, nombre) == -1:
+        nombre = input("No existe. Opciones " + str(nodos) + ": ").upper()
+    return nombre
+
+
 def main():
     modulos, adyacencia, lugares, pesos = [], [], [], []
     opcion = ""
     while opcion != "0":
-        print("\n1. Cargar dependencias (RF1)\n2. Grados (RF2)\n3. Cargar red de rutas\n0. Salir")
+        print("\n1. Cargar dependencias (RF1)\n2. Grados (RF2)\n3. Cargar red de rutas\n4. Ruta mas rapida (RF7)\n0. Salir")
         opcion = input("Opcion: ")
         if opcion == "1":
             modulos, adyacencia = cargar_grafo("dependencias.txt", True)
@@ -77,8 +113,15 @@ def main():
             for m in grados(modulos, adyacencia):
                 print(m[0], "- salida:", m[1], "- entrada:", m[2])
         elif opcion == "3":
-            lugares, pesos = cargar_grafo("red_distribucion.txt", False)
+            archivo = input("Archivo [red_distribucion.txt]: ") or "red_distribucion.txt"
+            lugares, pesos = cargar_grafo(archivo, False)
             mostrar_matriz(lugares, pesos)
+        elif opcion == "4" and lugares != []:
+            minutos, camino = dijkstra(lugares, pesos, pedir(lugares, "Origen: "), pedir(lugares, "Destino: "))
+            if camino == []:
+                print("No hay ruta entre esos lugares.")
+            else:
+                print(" - ".join(camino), "=", minutos, "min")
     print("Fin del programa.")
 
 
