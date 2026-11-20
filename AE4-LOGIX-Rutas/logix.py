@@ -21,13 +21,16 @@ def cargar_grafo(nombre_archivo, dirigido):
     archivo = open(os.path.join(CARPETA, nombre_archivo), "r")
     for linea in archivo:
         partes = linea.strip().split(";")
-        peso = 1
+        peso = "1"
         if len(partes) == 3:
-            peso = int(partes[2])
-        for nombre in partes[:2]:
-            if buscar(nodos, nombre) == -1:
-                nodos.append(nombre)
-        arcos.append([partes[0], partes[1], peso])
+            peso = partes[2]
+        if len(partes) < 2 or not peso.isdigit() or int(peso) == 0:
+            print("Linea invalida, se ignora:", linea.strip())
+        else:
+            for nombre in partes[:2]:
+                if buscar(nodos, nombre) == -1:
+                    nodos.append(nombre)
+            arcos.append([partes[0], partes[1], int(peso)])
     archivo.close()
 
     matriz = []
@@ -106,22 +109,27 @@ def main():
     while opcion != "0":
         print("\n1. Cargar dependencias (RF1)\n2. Grados (RF2)\n3. Cargar red de rutas\n4. Ruta mas rapida (RF7)\n0. Salir")
         opcion = input("Opcion: ")
-        if opcion == "1":
-            modulos, adyacencia = cargar_grafo("dependencias.txt", True)
-            mostrar_matriz(modulos, adyacencia)
-        elif opcion == "2" and modulos != []:
-            for m in grados(modulos, adyacencia):
-                print(m[0], "- salida:", m[1], "- entrada:", m[2])
-        elif opcion == "3":
-            archivo = input("Archivo [red_distribucion.txt]: ") or "red_distribucion.txt"
-            lugares, pesos = cargar_grafo(archivo, False)
-            mostrar_matriz(lugares, pesos)
-        elif opcion == "4" and lugares != []:
-            minutos, camino = dijkstra(lugares, pesos, pedir(lugares, "Origen: "), pedir(lugares, "Destino: "))
-            if camino == []:
-                print("No hay ruta entre esos lugares.")
-            else:
-                print(" - ".join(camino), "=", minutos, "min")
+        try:
+            if opcion == "1":
+                modulos, adyacencia = cargar_grafo("dependencias.txt", True)
+                mostrar_matriz(modulos, adyacencia)
+            elif opcion == "2" and modulos != []:
+                for m in grados(modulos, adyacencia):
+                    print(m[0], "- salida:", m[1], "- entrada:", m[2])
+            elif opcion == "3":
+                archivo = input("Archivo [red_distribucion.txt]: ") or "red_distribucion.txt"
+                lugares, pesos = cargar_grafo(archivo, False)
+                mostrar_matriz(lugares, pesos)
+            elif opcion == "4" and lugares != []:
+                minutos, camino = dijkstra(lugares, pesos, pedir(lugares, "Origen: "), pedir(lugares, "Destino: "))
+                if camino == []:
+                    print("No hay ruta entre esos lugares.")
+                else:
+                    print(" - ".join(camino), "=", minutos, "min")
+            elif opcion != "0":
+                print("Opcion invalida o falta cargar los datos (opcion 1 o 3).")
+        except FileNotFoundError:
+            print("No se encontro el archivo.")
     print("Fin del programa.")
 
 
