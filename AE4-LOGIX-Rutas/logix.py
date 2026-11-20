@@ -13,24 +13,31 @@ def buscar(nodos, nombre):
     return -1
 
 
-def cargar_grafo(nombre_archivo):
-    """Lee lineas 'X;Y' (X depende de Y) y arma la matriz de adyacencia."""
+def cargar_grafo(nombre_archivo, dirigido):
+    """Lee lineas 'X;Y' (dependencias) o 'X;Y;minutos' (tramos) y arma la matriz."""
     nodos = []
     arcos = []
     archivo = open(os.path.join(CARPETA, nombre_archivo), "r")
     for linea in archivo:
         partes = linea.strip().split(";")
-        for nombre in partes:
+        peso = 1
+        if len(partes) == 3:
+            peso = int(partes[2])
+        for nombre in partes[:2]:
             if buscar(nodos, nombre) == -1:
                 nodos.append(nombre)
-        arcos.append([partes[0], partes[1]])
+        arcos.append([partes[0], partes[1], peso])
     archivo.close()
 
     matriz = []
     for i in range(len(nodos)):
         matriz.append([0] * len(nodos))
     for arco in arcos:
-        matriz[buscar(nodos, arco[0])][buscar(nodos, arco[1])] = 1
+        i = buscar(nodos, arco[0])
+        j = buscar(nodos, arco[1])
+        matriz[i][j] = arco[2]
+        if not dirigido:
+            matriz[j][i] = arco[2]      # un tramo se recorre en los dos sentidos
     return nodos, matriz
 
 
@@ -58,17 +65,20 @@ def grados(nodos, matriz):
 
 
 def main():
-    modulos, adyacencia = [], []
+    modulos, adyacencia, lugares, pesos = [], [], [], []
     opcion = ""
     while opcion != "0":
-        print("\n1. Cargar dependencias (RF1)\n2. Grados (RF2)\n0. Salir")
+        print("\n1. Cargar dependencias (RF1)\n2. Grados (RF2)\n3. Cargar red de rutas\n0. Salir")
         opcion = input("Opcion: ")
         if opcion == "1":
-            modulos, adyacencia = cargar_grafo("dependencias.txt")
+            modulos, adyacencia = cargar_grafo("dependencias.txt", True)
             mostrar_matriz(modulos, adyacencia)
         elif opcion == "2" and modulos != []:
             for m in grados(modulos, adyacencia):
                 print(m[0], "- salida:", m[1], "- entrada:", m[2])
+        elif opcion == "3":
+            lugares, pesos = cargar_grafo("red_distribucion.txt", False)
+            mostrar_matriz(lugares, pesos)
     print("Fin del programa.")
 
 
